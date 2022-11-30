@@ -3,7 +3,7 @@
 </p>
 
 
-#PET-SCHEDULE API
+# PET-SCHEDULE API
 
 1. Clonar proyecto
 2. ```npm install```
