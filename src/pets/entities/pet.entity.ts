@@ -1,5 +1,6 @@
 import internal from "stream";
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Species } from '../../species/entities/species.entity';
 
 @Entity()
 export class Pet {
@@ -15,20 +16,31 @@ export class Pet {
     @Column('varchar',{
         length:100
     })
-    species:string;
-
-    @Column('varchar',{
-        length:100
-    })
     sex:string;
 
     @Column('int')
     age:number;
 
+    @Column({name:'id_species'})
+    idSpecies:number;
+    
+    @ManyToOne(
+        ()=> Species,
+        (species)=> species.pets,
+        {eager:true, nullable:false},
+    )
+    @JoinColumn({name: 'id_species'})
+    species:Species;
+
     @BeforeInsert()
-    columnToLowerCase(){
-        this.name=this.name.toLocaleLowerCase();
-        this.species=this.species.toLocaleLowerCase();
-        this.sex=this.sex.toLocaleLowerCase();
+    columnInsertToLowerCase(){
+        this.name=this.name.toLocaleLowerCase().trim();
+        this.sex=this.sex.toLocaleLowerCase().trim();
+    }
+
+    @BeforeUpdate()
+    columnUpdateToLowerCase(){
+        this.name=this.name.toLocaleLowerCase().trim();
+        this.sex=this.sex.toLocaleLowerCase().trim();
     }
 }
