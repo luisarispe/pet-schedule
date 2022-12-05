@@ -20,6 +20,10 @@ mysql/
 #ENV
 .env
 
+#STATIC
+static/*/*.*
+
+
 # Tests
 /coverage
 /.nyc_output

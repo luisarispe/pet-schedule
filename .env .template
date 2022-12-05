@@ -1,3 +1,6 @@
+PORT=3000
+URL_API=api
+HOST_API=http://localhost
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=pet_schedule

@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsNumber,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -23,4 +24,8 @@ export class CreatePetDto {
   @IsNumber()
   @Type(() => Number)
   idSpecies: number;
+
+  @IsOptional()
+  @IsString()
+  urlImage?: string;
 }

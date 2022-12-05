@@ -11,8 +11,10 @@ import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { Pet } from './entities/pet.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Species } from '../species/entities/species.entity';
 import { SpeciesService } from 'src/species/species.service';
+import { join } from 'path';
+import { existsSync } from 'fs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PetsService {
@@ -20,6 +22,7 @@ export class PetsService {
     @InjectRepository(Pet)
     private readonly petRepository: Repository<Pet>,
     private readonly speciesService: SpeciesService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createPetDto: CreatePetDto) {
@@ -44,7 +47,11 @@ export class PetsService {
         take: limit,
         skip: offset,
       });
-      return pets;
+
+      return pets.map((pet) => {
+        pet.urlImage = pet.urlImage ? this.generaUrlImage(pet.urlImage) : null;
+        return pet;
+      });
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -54,6 +61,10 @@ export class PetsService {
   async findOne(id: string) {
     const pet = await this.petRepository.findOneBy({ id });
     if (!pet) throw new NotFoundException(`No exist pet id: ${id}`);
+
+    const { urlImage } = pet;
+    const urlImageFull = this.generaUrlImage(urlImage);
+    pet.urlImage = urlImageFull;
 
     return pet;
   }
@@ -101,5 +112,21 @@ export class PetsService {
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
     );
+  }
+  getStaticProductImage(imageName: string) {
+    const path = join(__dirname, '../../static/pets', imageName);
+
+    if (!existsSync(path))
+      throw new BadRequestException(`No pet found with image ${imageName}`);
+
+    return path;
+  }
+  generaUrlImage(imageName: string) {
+    const secureURL = `${this.configService.get(
+      'HOST_API',
+    )}:${this.configService.get('PORT')}/${this.configService.get(
+      'URL_API',
+    )}/pets/image/${imageName}`;
+    return secureURL;
   }
 }
