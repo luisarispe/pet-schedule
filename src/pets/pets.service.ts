@@ -63,8 +63,7 @@ export class PetsService {
     if (!pet) throw new NotFoundException(`No exist pet id: ${id}`);
 
     const { urlImage } = pet;
-    const urlImageFull = this.generaUrlImage(urlImage);
-    pet.urlImage = urlImageFull;
+    if (urlImage) pet.urlImage = this.generaUrlImage(urlImage);
 
     return pet;
   }
