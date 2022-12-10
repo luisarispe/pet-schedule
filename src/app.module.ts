@@ -10,10 +10,11 @@ import { SeedModule } from './seed/seed.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validationSchema:JoiValidationSchema
+      validationSchema: JoiValidationSchema,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
+      timezone: 'Z',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       database: process.env.DB_NAME,
