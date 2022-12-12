@@ -7,14 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { S3Service } from 'src/common/services/s3/s3.service';
+import { SpeciesService } from 'src/species/species.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
-import { Pet } from './entities/pet.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { SpeciesService } from 'src/species/species.service';
-import { join } from 'path';
-import { existsSync } from 'fs';
-import { ConfigService } from '@nestjs/config';
+import { Pet } from './entities/pet.entity';
 
 @Injectable()
 export class PetsService {
@@ -22,12 +20,18 @@ export class PetsService {
     @InjectRepository(Pet)
     private readonly petRepository: Repository<Pet>,
     private readonly speciesService: SpeciesService,
-    private readonly configService: ConfigService,
+    private readonly s3Service: S3Service,
   ) {}
 
-  async create(createPetDto: CreatePetDto) {
+  async create(createPetDto: CreatePetDto, file?: Express.Multer.File) {
     await this.speciesService.findOne(createPetDto.idSpecies);
     try {
+      //CARGA IMAGEN
+      if (file) {
+        const urlImage = await this.s3Service.upload(file, 'img-pets');
+        createPetDto.urlImage = urlImage;
+      }
+
       const petInsert = this.petRepository.create(createPetDto);
       await this.petRepository.insert(petInsert);
 
@@ -47,11 +51,7 @@ export class PetsService {
         take: limit,
         skip: offset,
       });
-
-      return pets.map((pet) => {
-        pet.urlImage = pet.urlImage ? this.generaUrlImage(pet.urlImage) : null;
-        return pet;
-      });
+      return pets;
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -61,27 +61,33 @@ export class PetsService {
   async findOne(id: string) {
     const pet = await this.petRepository.findOneBy({ id });
     if (!pet) throw new NotFoundException(`No exist pet id: ${id}`);
-
-    const { urlImage } = pet;
-    if (urlImage) pet.urlImage = this.generaUrlImage(urlImage);
-
     return pet;
   }
 
-  async update(id: string, updatePetDto: UpdatePetDto) {
+  async update(
+    id: string,
+    updatePetDto: UpdatePetDto,
+    file?: Express.Multer.File,
+  ) {
     await this.findOne(id);
 
     if (updatePetDto.idSpecies)
       await this.speciesService.findOne(updatePetDto.idSpecies);
 
     try {
+      //CARGA IMAGEN
+      if (file) {
+        const urlImage = await this.s3Service.upload(file, 'img-pets');
+
+        updatePetDto.urlImage = urlImage;
+      }
+
       const pet = await this.petRepository.preload({ id, ...updatePetDto });
       await this.petRepository.save(pet);
 
       const petDB = await this.findOne(pet.id);
       return petDB;
     } catch (error) {
-      console.log(error);
       this.handleDBExceptions(error);
     }
   }
@@ -111,21 +117,5 @@ export class PetsService {
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
     );
-  }
-  getStaticProductImage(imageName: string) {
-    const path = join(__dirname, '../../static/pets', imageName);
-
-    if (!existsSync(path))
-      throw new BadRequestException(`No pet found with image ${imageName}`);
-
-    return path;
-  }
-  generaUrlImage(imageName: string) {
-    const secureURL = `${this.configService.get(
-      'HOST_API',
-    )}:${this.configService.get('PORT')}/${this.configService.get(
-      'URL_API',
-    )}/pets/image/${imageName}`;
-    return secureURL;
   }
 }
