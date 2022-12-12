@@ -81,6 +81,10 @@ export class SpeciesService {
   private handleDBExceptions(error: any) {
     if (error.errno === 1062) {
       throw new BadRequestException(error.sqlMessage);
+    } else if (error.errno === 1451) {
+      throw new BadRequestException(
+        'It is not possible to eliminate this species, since it is associated with a pet',
+      );
     }
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
