@@ -3,13 +3,12 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Species } from '../../species/entities/species.entity';
 
@@ -34,18 +33,24 @@ export class Pet {
 
   @Column('varchar', {
     nullable: true,
-    name: 'url_image',
+    name: 'urlImage',
   })
   urlImage: string;
 
-  @Column({ name: 'id_species' })
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({ name: 'idSpecies' })
   idSpecies: number;
 
   @ManyToOne(() => Species, (species) => species.pets, {
     eager: true,
     nullable: false,
   })
-  @JoinColumn({ name: 'id_species' })
+  @JoinColumn({ name: 'idSpecies' })
   species: Species;
 
   @BeforeInsert()
