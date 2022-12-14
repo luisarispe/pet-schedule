@@ -15,27 +15,27 @@ export const dataSpecies: Species = {
 export const dataPet: Pet[] = [
   {
     name: 'Cachupin',
-    sex: 'feminino',
+    sex: 'hembra',
     age: 1,
   },
   {
     name: 'Mochiberto',
-    sex: 'masculino',
+    sex: 'macho',
     age: 4,
   },
   {
     name: 'Firulais',
-    sex: 'masculino',
+    sex: 'macho',
     age: 2,
   },
   {
     name: 'Boby',
-    sex: 'masculino',
+    sex: 'macho',
     age: 10,
   },
   {
     name: 'Michi',
-    sex: 'feminino',
+    sex: 'hembra',
     age: 2,
   },
 ];

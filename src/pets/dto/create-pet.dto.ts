@@ -14,7 +14,7 @@ export class CreatePetDto {
   @MaxLength(100)
   name: string;
 
-  @IsIn(['feminino', 'masculino'])
+  @IsIn(['hembra', 'macho'])
   sex: string;
 
   @IsNumber()
