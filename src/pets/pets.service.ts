@@ -45,17 +45,41 @@ export class PetsService {
 
   async findAll(paginationDto: PaginationDto) {
     try {
-      const { limit = 10, offset = 0 } = paginationDto;
+      const {
+        limit = 10,
+        offset = 0,
+        sortColum = 'pet.name',
+        sortDirection = 'DESC',
+        filter = '',
+      } = paginationDto;
 
-      const pets = await this.petRepository.find({
-        take: limit,
-        skip: offset,
-      });
-      return pets;
+      //OTRA OPCIÓN DE HACERLOS
+      // const order:OrderByCondition = Object.fromEntries([[name, direction]]);
+      // console.log(order);
+      // const [result, count] = await this.petRepository.findAndCount({
+      //   take: limit,
+      //   skip: offset,
+      //   order: order,
+      // });
+      const [result, count] = await this.petRepository
+        .createQueryBuilder('pet')
+        .leftJoinAndSelect('pet.species', 'species')
+        .where('pet.name like :name', { name: `%${filter}%` })
+        .orderBy({
+          [sortColum]: sortDirection,
+        })
+        .take(limit)
+        .skip(offset)
+        .getManyAndCount();
+
+      return {
+        pets: result,
+        count,
+      };
     } catch (error) {
+      console.log(error);
       this.handleDBExceptions(error);
     }
-    return `This action returns all pets`;
   }
 
   async findOne(id: string) {
