@@ -25,6 +25,12 @@ export class PetsService {
 
   async create(createPetDto: CreatePetDto, file?: Express.Multer.File) {
     await this.speciesService.findOne(createPetDto.idSpecies);
+
+    const existName = await this.findName(createPetDto.name);
+    if (existName)
+      throw new BadRequestException([
+        `el nombre: "${createPetDto.name}" ya existe`,
+      ]);
     try {
       //CARGA IMAGEN
       if (file) {
@@ -38,6 +44,14 @@ export class PetsService {
       const petDB = await this.findOne(petInsert.id);
 
       return petDB;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+  async findName(name: string) {
+    try {
+      const pet = await this.petRepository.findOneBy({ name });
+      return pet;
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -136,10 +150,10 @@ export class PetsService {
   }
   private handleDBExceptions(error: any) {
     if (error.errno === 1062) {
-      throw new BadRequestException(error.sqlMessage);
+      throw new BadRequestException([error.sqlMessage]);
     }
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
+    throw new InternalServerErrorException([
+      'error inesperado, favor comunicarse con IT',
+    ]);
   }
 }

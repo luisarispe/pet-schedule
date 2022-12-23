@@ -7,8 +7,8 @@ import { v4 as uuid } from 'uuid';
 export class S3Service {
   constructor(private readonly configService: ConfigService) {}
   s3: AWS.S3 = new AWS.S3({
-    accessKeyId: this.configService.get('AWS_S3_ACCESS_KEY'),
-    secretAccessKey: this.configService.get('AWS_S3_KEY_SECRET'),
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
 
   async upload(file: Express.Multer.File, bucket: string) {
@@ -18,7 +18,7 @@ export class S3Service {
       Key: fileName,
       Body: file.buffer,
       ContentType: file.mimetype,
-      ContentDisposition: 'inline',
+      ACL: 'public-read',
     };
 
     try {
