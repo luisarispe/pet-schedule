@@ -112,6 +112,14 @@ export class PetsService {
     if (updatePetDto.idSpecies)
       await this.speciesService.findOne(updatePetDto.idSpecies);
 
+    const existName = await this.findName(updatePetDto.name);
+
+    if (existName && existName.id !== id) {
+      throw new BadRequestException([
+        `el nombre: "${updatePetDto.name}" ya existe`,
+      ]);
+    }
+
     try {
       //CARGA IMAGEN
       if (file) {
