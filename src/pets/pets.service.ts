@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SlackService } from 'nestjs-slack';
 
 import { S3Service } from 'src/common/services/s3/s3.service';
 import { SpeciesService } from 'src/species/species.service';
@@ -21,6 +22,7 @@ export class PetsService {
     private readonly petRepository: Repository<Pet>,
     private readonly speciesService: SpeciesService,
     private readonly s3Service: S3Service,
+    private readonly slackService: SlackService,
   ) {}
 
   async create(createPetDto: CreatePetDto, file?: Express.Multer.File) {
@@ -91,7 +93,6 @@ export class PetsService {
         count,
       };
     } catch (error) {
-      console.log(error);
       this.handleDBExceptions(error);
     }
   }
@@ -157,6 +158,7 @@ export class PetsService {
     }
   }
   private handleDBExceptions(error: any) {
+    this.slackService.sendText(JSON.stringify(error));
     if (error.errno === 1062) {
       throw new BadRequestException([error.sqlMessage]);
     }

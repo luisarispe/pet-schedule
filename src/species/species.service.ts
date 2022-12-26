@@ -5,16 +5,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { SlackService } from 'nestjs-slack';
+
 import { CreateSpeciesDto } from './dto/create-species.dto';
 import { UpdateSpeciesDto } from './dto/update-species.dto';
 import { Species } from './entities/species.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class SpeciesService {
   constructor(
     @InjectRepository(Species)
     private readonly speciesRepository: Repository<Species>,
+    private readonly slackService: SlackService,
   ) {}
 
   async create(createSpeciesDto: CreateSpeciesDto) {
@@ -79,6 +83,7 @@ export class SpeciesService {
   }
 
   private handleDBExceptions(error: any) {
+    this.slackService.sendText(JSON.stringify(error));
     if (error.errno === 1062) {
       throw new BadRequestException(error.sqlMessage);
     } else if (error.errno === 1451) {

@@ -1,11 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
+import { SlackService } from 'nestjs-slack';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class S3Service {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly slackService: SlackService) {}
   s3: AWS.S3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -26,6 +26,7 @@ export class S3Service {
 
       return Location;
     } catch (e) {
+      this.slackService.sendText(JSON.stringify(e));
       throw new InternalServerErrorException(
         'Unexpected error, check server logs',
       );
