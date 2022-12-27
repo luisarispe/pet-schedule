@@ -36,6 +36,10 @@ export class PetsController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|gif)$/,
         })
+        .addMaxSizeValidator({
+          //3MB
+          maxSize: 3000000,
+        })
         .build({
           fileIsRequired: false,
         }),
@@ -66,6 +70,10 @@ export class PetsController {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|gif)$/,
+        })
+        .addMaxSizeValidator({
+          //3MB
+          maxSize: 3000000,
         })
         .build({
           fileIsRequired: false,
