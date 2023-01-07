@@ -9,4 +9,5 @@ export const JoiValidationSchema = Joi.object({
   DB_PASSWORD: Joi.required(),
   AWS_ACCESS_KEY_ID: Joi.required(),
   AWS_SECRET_ACCESS_KEY: Joi.required(),
+  JWT_SECRET: Joi.required(),
 });

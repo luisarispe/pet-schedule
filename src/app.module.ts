@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { SpeciesModule } from './species/species.module';
 import { SeedModule } from './seed/seed.module';
 import { join } from 'path';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +32,7 @@ import { join } from 'path';
     CommonModule,
     SpeciesModule,
     SeedModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Species } from '../../species/entities/species.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Entity()
 export class Pet {
@@ -52,6 +53,12 @@ export class Pet {
   })
   @JoinColumn({ name: 'idSpecies' })
   species: Species;
+
+  @ManyToOne(() => User, (user) => user.pets, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'idUser' })
+  user: User;
 
   @BeforeInsert()
   columnInsertToLowerCase() {

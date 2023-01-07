@@ -18,6 +18,9 @@ import { S3Service } from '../common/services/s3/s3.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { User } from 'src/auth/entities/user.entity';
+import { GetUser } from 'src/auth/decorators/getuser.decorator';
 
 @Controller('pets')
 export class PetsController {
@@ -27,8 +30,10 @@ export class PetsController {
   ) {}
 
   @Post()
+  @Auth()
   @UseInterceptors(FileInterceptor('file'))
   create(
+    @GetUser() user: User,
     @Body() createPetDto: CreatePetDto,
     //CARGA IMAGEN
     @UploadedFile(
@@ -47,20 +52,23 @@ export class PetsController {
     file?: Express.Multer.File,
     //END CARGA IMAGEN
   ) {
-    return this.petsService.create(createPetDto, file);
+    return this.petsService.create(createPetDto, user, file);
   }
 
   @Get()
+  @Auth()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.petsService.findAll(paginationDto);
   }
 
   @Get(':id')
+  @Auth()
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.petsService.findOne(id);
   }
 
   @Patch(':id')
+  @Auth()
   @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id', ParseUUIDPipe) id: string,

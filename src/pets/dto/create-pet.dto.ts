@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 
 export class CreatePetDto {
-  @IsString({ message: 'el nombre debe ser una cadena' })
+  @IsString({ message: 'el nombre debe ser una cadena de texto' })
   @MinLength(4, { message: 'el nombre debe ser mayor o igual a 4 caracteres' })
   @MaxLength(100, {
     message: 'el nombre debe ser menor o igual a 100 caracteres',
@@ -32,6 +32,6 @@ export class CreatePetDto {
   idSpecies: number;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'la url de imagen debe ser una cadena de texto' })
   urlImage?: string;
 }

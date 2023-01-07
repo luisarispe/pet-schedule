@@ -14,6 +14,7 @@ import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Pet } from './entities/pet.entity';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class PetsService {
@@ -25,7 +26,11 @@ export class PetsService {
     private readonly slackService: SlackService,
   ) {}
 
-  async create(createPetDto: CreatePetDto, file?: Express.Multer.File) {
+  async create(
+    createPetDto: CreatePetDto,
+    user: User,
+    file?: Express.Multer.File,
+  ) {
     await this.speciesService.findOne(createPetDto.idSpecies);
 
     const existName = await this.findName(createPetDto.name);
@@ -40,7 +45,7 @@ export class PetsService {
         createPetDto.urlImage = urlImage;
       }
 
-      const petInsert = this.petRepository.create(createPetDto);
+      const petInsert = this.petRepository.create({ ...createPetDto, user });
       await this.petRepository.insert(petInsert);
 
       const petDB = await this.findOne(petInsert.id);
@@ -99,7 +104,7 @@ export class PetsService {
 
   async findOne(id: string) {
     const pet = await this.petRepository.findOneBy({ id });
-    if (!pet) throw new NotFoundException(`No exist pet id: ${id}`);
+    if (!pet) throw new NotFoundException(['mascota no encontrada']);
     return pet;
   }
 
@@ -113,12 +118,13 @@ export class PetsService {
     if (updatePetDto.idSpecies)
       await this.speciesService.findOne(updatePetDto.idSpecies);
 
-    const existName = await this.findName(updatePetDto.name);
-
-    if (existName && existName.id !== id) {
-      throw new BadRequestException([
-        `el nombre: "${updatePetDto.name}" ya existe`,
-      ]);
+    if (updatePetDto.name) {
+      const existName = await this.findName(updatePetDto.name);
+      if (existName && existName.id !== id) {
+        throw new BadRequestException([
+          `el nombre: '${updatePetDto.name}' ya existe`,
+        ]);
+      }
     }
 
     try {
@@ -129,7 +135,10 @@ export class PetsService {
         updatePetDto.urlImage = urlImage;
       }
 
-      const pet = await this.petRepository.preload({ id, ...updatePetDto });
+      const pet = await this.petRepository.preload({
+        id,
+        ...updatePetDto,
+      });
       await this.petRepository.save(pet);
 
       const petDB = await this.findOne(pet.id);

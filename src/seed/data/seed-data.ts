@@ -8,6 +8,18 @@ export interface Species {
   name: string;
 }
 
+export interface User {
+  email: string;
+  password: string;
+  fullName: string;
+}
+
+export const dataUser: User = {
+  email: 'test@gmail.com',
+  password: 'Abc12345',
+  fullName: 'John Doe',
+};
+
 export const dataSpecies: Species = {
   name: 'perro',
 };
