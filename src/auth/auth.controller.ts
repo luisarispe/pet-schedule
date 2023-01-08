@@ -8,15 +8,28 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { Auth } from './decorators/auth.decorator';
+import { GetUser } from './decorators/getuser.decorator';
 import { AuthService } from './auth.service';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
-import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('login')
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
+  }
+
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(@GetUser() user: User) {
+    return this.authService.checkStatus(user);
+  }
 
   @Post()
   @Auth()
@@ -49,10 +62,5 @@ export class AuthController {
   @Auth()
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.authService.remove(id);
-  }
-
-  @Post('login')
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
   }
 }
