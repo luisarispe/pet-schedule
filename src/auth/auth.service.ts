@@ -99,13 +99,23 @@ export class AuthService {
     const { password, email } = loginDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: ['email', 'password', 'id'],
+      select: [
+        'email',
+        'password',
+        'id',
+        'fullName',
+        'createdAt',
+        'updatedAt',
+        'isActive',
+      ],
     });
     if (!user)
       throw new UnauthorizedException(['Usuario/contraseña incorrecta']);
 
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException(['Usuario/contraseña incorrecta']);
+
+    delete user.password;
 
     return { ...user, token: this.getJwtToken({ id: user.id }) };
   }
