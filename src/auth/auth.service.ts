@@ -117,7 +117,7 @@ export class AuthService {
 
     delete user.password;
 
-    return { ...user, token: this.getJwtToken({ id: user.id }) };
+    return { user, token: this.getJwtToken({ id: user.id }) };
   }
 
   private async findEmail(email: string) {
@@ -131,10 +131,7 @@ export class AuthService {
     }
   }
   async checkStatus(user: User) {
-    return {
-      ...user,
-      token: this.getJwtToken({ id: user.id }),
-    };
+    return { user, token: this.getJwtToken({ id: user.id }) };
   }
 
   private getJwtToken(payload: JwtPayload): string {
