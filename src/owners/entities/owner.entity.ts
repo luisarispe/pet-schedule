@@ -1,19 +1,18 @@
+import { User } from 'src/auth/entities/user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { Pet } from 'src/pets/entities/pet.entity';
-import { Owner } from 'src/owners/entities/owner.entity';
 
 @Entity()
-export class User {
+export class Owner {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -24,20 +23,17 @@ export class User {
 
   @Column('varchar', {
     length: 100,
-    select: false,
-  })
-  password: string;
-
-  @Column('varchar', {
-    length: 100,
     unique: true,
   })
   email: string;
 
-  @Column('boolean', {
-    default: true,
+  @Column('varchar', {
+    length: 100,
   })
-  isActive: boolean;
+  rut: string;
+
+  @Column('varchar', { length: 100 })
+  phone: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -45,25 +41,23 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Pet, (pet) => pet.user)
-  pets: Pet[];
-
-  @OneToMany(() => Owner, (owner) => owner.user)
-  owners: Owner[];
+  @ManyToOne(() => User, (user) => user.owners, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'idUser' })
+  user: User;
 
   @BeforeInsert()
-  private columnsBeforeInsert() {
+  columnInsertToLowerCase() {
     this.fullName = this.fullName.toLocaleLowerCase().trim();
     this.email = this.email.toLocaleLowerCase().trim();
-    this.password = bcrypt.hashSync(this.password, 10);
+    this.phone = this.phone.trim();
   }
 
   @BeforeUpdate()
-  private columnBeforeUpdate() {
+  columnUpdateToLowerCase() {
     this.fullName = this.fullName.toLocaleLowerCase().trim();
     this.email = this.email.toLocaleLowerCase().trim();
-    if (this.password) {
-      this.password = bcrypt.hashSync(this.password, 10);
-    }
+    this.phone = this.phone.trim();
   }
 }

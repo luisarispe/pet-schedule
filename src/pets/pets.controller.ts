@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PetsService } from './pets.service';
-import { S3Service } from '../common/services/s3/s3.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -24,10 +23,7 @@ import { GetUser } from 'src/auth/decorators/getuser.decorator';
 
 @Controller('pets')
 export class PetsController {
-  constructor(
-    private readonly petsService: PetsService,
-    private readonly s3Service: S3Service,
-  ) {}
+  constructor(private readonly petsService: PetsService) {}
 
   @Post()
   @Auth()
@@ -94,6 +90,7 @@ export class PetsController {
   }
 
   @Delete(':id')
+  @Auth()
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.petsService.remove(id);
   }

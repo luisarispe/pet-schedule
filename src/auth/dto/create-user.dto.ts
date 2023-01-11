@@ -29,9 +29,12 @@ export class CreateUserDto {
   password: string;
 
   @IsString({ message: 'el correo electronico debe ser una cadena de texto' })
-  @IsEmail({
-    message: 'el correo electronico debe ser un correo electronico valido',
-  })
+  @IsEmail(
+    {},
+    {
+      message: 'el correo electronico debe ser un correo electronico valido',
+    },
+  )
   @MaxLength(100, {
     message: 'el correo electronico debe ser menor o igual a 100 caracteres',
   })

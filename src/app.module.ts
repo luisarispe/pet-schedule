@@ -9,6 +9,7 @@ import { SpeciesModule } from './species/species.module';
 import { SeedModule } from './seed/seed.module';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
+import { OwnersModule } from './owners/owners.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
     SpeciesModule,
     SeedModule,
     AuthModule,
+    OwnersModule,
   ],
 })
 export class AppModule {}

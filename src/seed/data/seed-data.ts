@@ -14,6 +14,20 @@ export interface User {
   fullName: string;
 }
 
+export interface Owner {
+  fullName: string;
+  email: string;
+  rut: string;
+  phone: string;
+}
+
+export const dataOwner: Owner = {
+  fullName: 'John Doe',
+  email: 'test@gmail.com',
+  rut: '12345678-9',
+  phone: '+56912345678',
+};
+
 export const dataUser: User = {
   email: 'test@gmail.com',
   password: 'Abc12345',
