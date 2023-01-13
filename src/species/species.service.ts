@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 import { SlackService } from 'nestjs-slack';
 
@@ -22,6 +22,16 @@ export class SpeciesService {
   ) {}
 
   async create(createSpeciesDto: CreateSpeciesDto) {
+    const nameExists = await this.speciesRepository.findOneBy({
+      name: createSpeciesDto.name,
+    });
+
+    if (nameExists) {
+      throw new BadRequestException([
+        `La especie ${createSpeciesDto.name} ya esta registrada`,
+      ]);
+    }
+
     try {
       const species = await this.speciesRepository.save(createSpeciesDto);
       await this.speciesRepository.save(species);
@@ -51,6 +61,19 @@ export class SpeciesService {
 
   async update(id: number, updateSpeciesDto: UpdateSpeciesDto) {
     await this.findOne(id);
+
+    const existName = await this.speciesRepository.findOne({
+      where: {
+        id: Not(id),
+        name: updateSpeciesDto.name ? updateSpeciesDto.name : '',
+      },
+    });
+
+    if (existName)
+      throw new BadRequestException(
+        `La especie ${updateSpeciesDto.name} ya esta registrada`,
+      );
+
     try {
       const species = await this.speciesRepository.preload({
         id,
@@ -84,15 +107,13 @@ export class SpeciesService {
 
   private handleDBExceptions(error: any) {
     this.slackService.sendText(JSON.stringify(error));
-    if (error.errno === 1062) {
-      throw new BadRequestException(error.sqlMessage);
-    } else if (error.errno === 1451) {
+
+    if (error.errno === 1451)
       throw new BadRequestException(
-        'It is not possible to eliminate this species, since it is associated with a pet',
+        'No se puede eliminar la especie, ya que esta asociada a una mascota',
       );
-    }
     throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
+      'error inesperado, favor comunicarse con IT',
     );
   }
 }

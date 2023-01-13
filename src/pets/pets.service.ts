@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { SlackService } from 'nestjs-slack';
 
 import { S3Service } from 'src/common/services/s3/s3.service';
@@ -38,6 +38,7 @@ export class PetsService {
       throw new BadRequestException([
         `el nombre: "${createPetDto.name}" ya existe`,
       ]);
+
     try {
       //CARGA IMAGEN
       if (file) {
@@ -118,14 +119,17 @@ export class PetsService {
     if (updatePetDto.idSpecies)
       await this.speciesService.findOne(updatePetDto.idSpecies);
 
-    if (updatePetDto.name) {
-      const existName = await this.findName(updatePetDto.name);
-      if (existName && existName.id !== id) {
-        throw new BadRequestException([
-          `el nombre: '${updatePetDto.name}' ya existe`,
-        ]);
-      }
-    }
+    const existName = await this.petRepository.findOne({
+      where: {
+        id: Not(id),
+        name: updatePetDto.name ? updatePetDto.name : '',
+      },
+    });
+
+    if (existName)
+      throw new BadRequestException([
+        `el nombre: '${updatePetDto.name}' ya existe`,
+      ]);
 
     try {
       //CARGA IMAGEN
@@ -168,9 +172,6 @@ export class PetsService {
   }
   private handleDBExceptions(error: any) {
     this.slackService.sendText(JSON.stringify(error));
-    if (error.errno === 1062) {
-      throw new BadRequestException([error.sqlMessage]);
-    }
     throw new InternalServerErrorException([
       'error inesperado, favor comunicarse con IT',
     ]);

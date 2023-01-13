@@ -29,6 +29,7 @@ export class Owner {
 
   @Column('varchar', {
     length: 100,
+    unique: true,
   })
   rut: string;
 
