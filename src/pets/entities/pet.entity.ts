@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Species } from '../../species/entities/species.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { Owner } from 'src/owners/entities/owner.entity';
 
 @Entity()
 export class Pet {
@@ -53,6 +54,16 @@ export class Pet {
   })
   @JoinColumn({ name: 'idSpecies' })
   species: Species;
+
+  @Column({ name: 'idOwner' })
+  idOwner: string;
+
+  @ManyToOne(() => Owner, (owner) => owner.pets, {
+    eager: true,
+    nullable: false,
+  })
+  @JoinColumn({ name: 'idOwner' })
+  owner: Owner;
 
   @ManyToOne(() => User, (user) => user.pets, {
     eager: true,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { PetsService } from 'src/pets/pets.service';
 import { SpeciesService } from 'src/species/species.service';
 import { dataPet, dataSpecies, dataUser, dataOwner } from './data/seed-data';
@@ -15,20 +15,22 @@ export class SeedService {
 
   async executeSEED() {
     //REMOVE ALL DATA
-    await this.ownersService.removeAll();
     await this.petsService.removeAll();
+    await this.ownersService.removeAll();
     await this.speciesServices.removeAll();
     await this.authService.removeAll();
 
-    const { id } = await this.speciesServices.create(dataSpecies);
+    const species = await this.speciesServices.create(dataSpecies);
     const user = await this.authService.create(dataUser);
-    await this.ownersService.create(dataOwner, user);
+    const owner = await this.ownersService.create(dataOwner, user);
 
-    const idSpecies = id;
+    const idSpecies = species.id;
+    const idOwner = owner.id;
     const insPromisePets = [];
-
     dataPet.map((pet) => {
-      insPromisePets.push(this.petsService.create({ ...pet, idSpecies }, user));
+      insPromisePets.push(
+        this.petsService.create({ ...pet, idSpecies, idOwner }, user),
+      );
     });
 
     await Promise.all(insPromisePets);

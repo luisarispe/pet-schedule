@@ -6,6 +6,7 @@ import { SpeciesModule } from '../species/species.module';
 import { Pet } from './entities/pet.entity';
 import { PetsController } from './pets.controller';
 import { AuthModule } from 'src/auth/auth.module';
+import { OwnersModule } from 'src/owners/owners.module';
 
 @Module({
   controllers: [PetsController],
@@ -13,6 +14,7 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([Pet]),
     SpeciesModule,
+    OwnersModule,
     CommonModule,
     AuthModule,
   ],

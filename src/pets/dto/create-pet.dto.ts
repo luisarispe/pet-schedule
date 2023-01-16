@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -27,9 +28,13 @@ export class CreatePetDto {
   @Type(() => Number)
   age: number;
 
-  @IsNumber()
+  @IsNumber(undefined, { message: 'idSpecies debe ser un número' })
   @Type(() => Number)
   idSpecies: number;
+
+  @IsString({ message: 'idOwner debe ser una cadena de texto' })
+  @IsUUID(undefined, { message: 'idOwner debe ser de tipo uuid' })
+  idOwner: string;
 
   @IsOptional()
   @IsString({ message: 'la url de imagen debe ser una cadena de texto' })

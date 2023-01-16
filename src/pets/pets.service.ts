@@ -15,6 +15,7 @@ import { UpdatePetDto } from './dto/update-pet.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Pet } from './entities/pet.entity';
 import { User } from '../auth/entities/user.entity';
+import { OwnersService } from 'src/owners/owners.service';
 
 @Injectable()
 export class PetsService {
@@ -22,6 +23,7 @@ export class PetsService {
     @InjectRepository(Pet)
     private readonly petRepository: Repository<Pet>,
     private readonly speciesService: SpeciesService,
+    private readonly ownerService: OwnersService,
     private readonly s3Service: S3Service,
     private readonly slackService: SlackService,
   ) {}
@@ -32,6 +34,7 @@ export class PetsService {
     file?: Express.Multer.File,
   ) {
     await this.speciesService.findOne(createPetDto.idSpecies);
+    await this.ownerService.findOne(createPetDto.idOwner);
 
     const existName = await this.findName(createPetDto.name);
     if (existName)
@@ -47,6 +50,7 @@ export class PetsService {
       }
 
       const petInsert = this.petRepository.create({ ...createPetDto, user });
+
       await this.petRepository.insert(petInsert);
 
       const petDB = await this.findOne(petInsert.id);
@@ -86,6 +90,9 @@ export class PetsService {
       const [result, count] = await this.petRepository
         .createQueryBuilder('pet')
         .leftJoinAndSelect('pet.species', 'species')
+        .leftJoinAndSelect('pet.owner', 'owner')
+        .leftJoinAndSelect('owner.user', 'user userOwners')
+        .leftJoinAndSelect('pet.user', 'user')
         .where('pet.name like :name', { name: `%${filter}%` })
         .orderBy({
           [sortColum]: sortDirection,
@@ -99,6 +106,7 @@ export class PetsService {
         count,
       };
     } catch (error) {
+      console.log(error);
       this.handleDBExceptions(error);
     }
   }
@@ -118,6 +126,9 @@ export class PetsService {
 
     if (updatePetDto.idSpecies)
       await this.speciesService.findOne(updatePetDto.idSpecies);
+
+    if (updatePetDto.idOwner)
+      await this.ownerService.findOne(updatePetDto.idOwner);
 
     const existName = await this.petRepository.findOne({
       where: {

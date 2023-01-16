@@ -1,4 +1,5 @@
 import { User } from 'src/auth/entities/user.entity';
+import { Pet } from 'src/pets/entities/pet.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -7,6 +8,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -41,6 +43,9 @@ export class Owner {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Pet, (pet) => pet.owner)
+  pets: Pet[];
 
   @ManyToOne(() => User, (user) => user.owners, {
     eager: true,
