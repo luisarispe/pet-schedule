@@ -64,6 +64,7 @@ export class OwnersService {
       const [result, count] = await this.ownerRepository
         .createQueryBuilder('owner')
         .leftJoinAndSelect('owner.user', 'user')
+        .leftJoinAndSelect('owner.pets', 'pet')
         .where('owner.fullName like :fullName', { fullName: `%${filter}%` })
         .orWhere('owner.rut like :rut', { rut: `%${filter}%` })
         .orderBy({
