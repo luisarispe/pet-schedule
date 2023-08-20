@@ -11,6 +11,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Pet } from 'src/pets/entities/pet.entity';
 import { Owner } from 'src/owners/entities/owner.entity';
+import { Schedule } from '../../schedules/entities/schedule.entity';
 
 @Entity()
 export class User {
@@ -50,6 +51,9 @@ export class User {
 
   @OneToMany(() => Owner, (owner) => owner.user)
   owners: Owner[];
+
+  @OneToMany(() => Schedule, (schedule) => schedule.user)
+  schedules: Schedule[];
 
   @BeforeInsert()
   private columnsBeforeInsert() {

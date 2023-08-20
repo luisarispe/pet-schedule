@@ -10,6 +10,7 @@ import { SeedModule } from './seed/seed.module';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
 import { OwnersModule } from './owners/owners.module';
+import { SchedulesModule } from './schedules/schedules.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,7 +18,8 @@ import { OwnersModule } from './owners/owners.module';
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      timezone: 'Z',
+      // timezone: '-03:00',
+      // timezone: 'z',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       database: process.env.DB_NAME,
@@ -25,6 +27,7 @@ import { OwnersModule } from './owners/owners.module';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
       synchronize: true,
+      // logging: true,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -35,6 +38,7 @@ import { OwnersModule } from './owners/owners.module';
     SeedModule,
     AuthModule,
     OwnersModule,
+    SchedulesModule,
   ],
 })
 export class AppModule {}

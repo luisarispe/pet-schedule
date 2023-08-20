@@ -1,4 +1,3 @@
-import internal from 'stream';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -7,12 +6,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Species } from '../../species/entities/species.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { Owner } from 'src/owners/entities/owner.entity';
+import { Schedule } from 'src/schedules/entities/schedule.entity';
 
 @Entity()
 export class Pet {
@@ -70,6 +71,9 @@ export class Pet {
   })
   @JoinColumn({ name: 'idUser' })
   user: User;
+
+  @OneToMany(() => Schedule, (schedule) => schedule.pet)
+  schedules: Schedule[];
 
   @BeforeInsert()
   columnInsertToLowerCase() {
