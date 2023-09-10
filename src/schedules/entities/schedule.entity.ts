@@ -23,10 +23,10 @@ export class Schedule {
   })
   title: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   dateStart: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   dateEnd: Date;
 
   @Column({ type: 'enum', enum: STATUS })

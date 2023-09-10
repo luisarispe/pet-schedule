@@ -20,7 +20,7 @@ import { SchedulesModule } from './schedules/schedules.module';
       type: 'mysql',
       // timezone: '-03:00',
       // timezone: 'z',
-      timezone: 'America/Santiago',
+      // timezone: 'America/Santiago',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       database: process.env.DB_NAME,

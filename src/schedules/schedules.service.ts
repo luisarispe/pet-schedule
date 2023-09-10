@@ -24,19 +24,6 @@ export class SchedulesService {
   async create(createScheduleDto: CreateScheduleDto, user: User) {
     await this.petService.findOne(createScheduleDto.idPet);
 
-    // const validateDate = await this.scheduleRepository.findOne({
-    //   where: [
-    //     {
-    //       dateStart: LessThanOrEqual(createScheduleDto.dateStart),
-    //       dateEnd: MoreThan(createScheduleDto.dateStart),
-    //     },
-    //     {
-    //       dateStart: LessThan(createScheduleDto.dateEnd),
-    //       dateEnd: MoreThanOrEqual(createScheduleDto.dateEnd),
-    //     },
-    //   ],
-    // });
-
     const query = this.scheduleRepository.createQueryBuilder('schedule');
     const validateDate: [] = await query
       .select()
